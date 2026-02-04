@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Kamini! 🌹</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-deep: #FF4D6D;
+            --pink-medium: #FF758F;
+            --pink-light: #FFB3C1;
+            --pink-pale: #FFF0F3;
+            --yellow-pop: #FFD60A;
+        }
+
+        body {
+            background-color: var(--pink-pale);
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            touch-action: none; 
+        }
+
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .card {
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 50px rgba(255, 77, 109, 0.2);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .heart-bg {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
+            50% { transform: translateY(-20px) rotate(10deg); opacity: 0.8; }
+        }
+
+        .no-button {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Collected Floating Gifts */
+        .floater {
+            position: absolute;
+            font-size: 4.5rem; 
+            cursor: grab;
+            user-select: none;
+            z-index: 50;
+            filter: drop-shadow(4px 8px 12px rgba(0,0,0,0.15));
+            touch-action: none;
+        }
+
+        .floater:active {
+            cursor: grabbing;
+            transform: scale(1.1) !important;
+            z-index: 150 !important;
+        }
+
+        .gift-box-anim {
+            animation: wiggle 1s infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.05); }
+        }
+
+        .qr-placeholder {
+            background: #f8fafc;
+            border: 2px dashed #FFB3C1;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            position: relative;
+        }
+
+        .upi-badge {
+            background: #f8fafc;
+            border: 2px dashed #FFB3C1;
+            padding: 8px;
+            border-radius: 10px;
+            font-family: monospace;
+            cursor: pointer;
+            word-break: break-all;
+        }
+
+        .flying-item {
+            position: fixed;
+            pointer-events: none;
+            z-index: 200;
+            transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--pink-deep);
+            box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.2);
+        }
+
+        /* Smooth scroll for message display */
+        #message-display-card::-webkit-scrollbar {
+            width: 4px;
+        }
+        #message-display-card::-webkit-scrollbar-thumb {
+            background: var(--pink-light);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="heart-container"></div>
+
+    <div class="w-full max-w-lg relative">
+        
+        <!-- Step 1: Proposal -->
+        <div id="valentine-card" class="card p-8 md:p-12 text-center relative overflow-hidden">
+            <div class="mb-6">
+                <div class="text-7xl mb-4 transform hover:scale-110 transition-transform duration-300">💖</div>
+                <h1 class="cursive text-4xl md:text-5xl text-[#FF4D6D] mb-2">Dear Kamini,</h1>
+                <p class="text-xl md:text-2xl font-bold text-gray-700 mt-4 leading-tight">
+                    Will you be my <span class="text-[#FF4D6D]">Valentine?</span>
+                </p>
+            </div>
+
+            <div id="group-1" class="flex flex-col md:flex-row items-center justify-center gap-6 mt-10 min-h-[120px]">
+                <button id="v-yes" class="bg-[#FF4D6D] hover:bg-[#FF758F] text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transform active:scale-95 transition-all">
+                    YES! 💖
+                </button>
+                <button id="v-no" class="no-button bg-white border-2 border-[#FFB3C1] text-gray-400 font-semibold py-2 px-6 rounded-full text-sm shadow-sm">
+                    No
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Gift Unwrapping Area -->
+        <div id="gift-container" class="hidden card p-8 md:p-10 text-center relative overflow-hidden opacity-0 transform scale-90">
+            <div id="display-area">
+                <div id="gift-visual" class="text-8xl mb-4 gift-box-anim flex justify-center items-center h-24">🎁</div>
+                <h2 id="gift-title" class="text-3xl font-bold text-gray-700 mb-2">Gift for You!</h2>
+                <p id="gift-desc" class="text-gray-500 italic mb-6">Tap to see what's inside...</p>
+            </div>
+
+            <div id="unwrap-action" class="flex justify-center">
+                <button id="unwrap-btn" class="bg-[#FFD60A] text-gray-800 font-black py-4 px-10 rounded-full shadow-lg transform active:scale-90 transition-all text-xl">
+                    UNWRAP GIFT 🎀
+                </button>
+            </div>
+
+            <div id="collect-group" class="hidden flex justify-center mt-4">
+                <button id="collect-btn" class="bg-[#FF4D6D] hover:bg-[#FF758F] text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transform active:scale-95 transition-all">
+                    COLLECT ✨
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Password Card -->
+        <div id="password-card" class="hidden card p-8 md:p-10 text-center relative overflow-hidden opacity-0 transform scale-90">
+            <div class="mb-6">
+                <div class="text-6xl mb-4">🔐</div>
+                <h2 class="cursive text-3xl text-[#FF4D6D] mb-4">A Secret Message...</h2>
+                <p class="text-gray-600 mb-6">There is a message waiting for you. Enter the password to read it.</p>
+                
+                <div class="space-y-4">
+                    <p class="text-xs font-bold text-pink-400 uppercase tracking-widest">Hint: Abhishek's Birth date in DDMM</p>
+                    <input type="text" id="pass-input" maxlength="4" placeholder="DDMM" class="w-full max-w-[150px] text-center text-2xl font-bold p-3 border-2 border-pink-100 rounded-xl">
+                    
+                    <div class="flex flex-col gap-3 mt-4">
+                        <button id="unlock-btn" class="bg-[#FF4D6D] text-white font-bold py-3 px-8 rounded-full shadow-md active:scale-95 transition-all">
+                            Unlock Message ✨
+                        </button>
+                        <button id="skip-pass-btn" class="text-gray-400 text-sm font-semibold hover:underline">
+                            Skip this for now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Secret Message Display -->
+        <div id="message-display-card" class="hidden card p-8 md:p-10 text-center relative overflow-hidden opacity-0 transform scale-90 max-h-[80vh] overflow-y-auto">
+            <div id="msg-emoji-source" class="text-6xl mb-4">✉️</div>
+            <h2 class="cursive text-4xl text-[#FF4D6D] mb-6 text-left">To Kamini,</h2>
+            <div class="text-left text-gray-700 leading-relaxed space-y-4 text-lg">
+                <p>Kamini, you are truly the best person I have ever met in my life. Thank you so much for being with me through my good days and my bad days alike.</p>
+                <p>I still remember how strangely we met on Instagram—all because of that one comment that went viral! Since then, we became so used to talking to each other all day and all night.</p>
+                <p>Good days came, bad days came; good things happened and bad things happened, but through it all, our friendship remained exactly the same.</p>
+                <p class="font-bold text-[#FF4D6D]">Thank you very much for coming into my life and, more importantly, for staying.</p>
+            </div>
+            <button id="collect-msg-btn" class="mt-8 bg-[#FFD60A] text-gray-800 font-bold py-3 px-10 rounded-full shadow-lg active:scale-95">
+                COLLECT MESSAGE ❤️
+            </button>
+        </div>
+
+        <!-- Step 5: Final Request -->
+        <div id="bill-card" class="hidden card p-8 md:p-10 text-center relative overflow-hidden opacity-0 transform scale-90">
+            <span class="text-7xl block mb-4">🧐</span>
+            <h2 class="text-3xl font-bold text-[#FF4D6D] mb-2">Where is my gift?</h2>
+            <p class="text-xl text-gray-700 font-semibold mb-2">Don't you love me too...</p>
+            <p class="text-gray-500 italic mb-6">Send your love right now! ❤️</p>
+            
+            <div class="bg-[#FFF0F3] p-6 rounded-2xl border-2 border-[#FFB3C1]">
+                <div class="flex justify-center mb-4">
+                    <div class="qr-placeholder">
+                        <img src="qr.jpeg" alt="QR Code" class="w-32 h-32 object-contain">
+                        <span class="absolute bottom-2 text-[8px] text-pink-400 font-bold">SCAN TO PAY LOVE</span>
+                    </div>
+                </div>
+                
+                <div id="upi-id" class="upi-badge text-[#FF4D6D] font-bold mt-2">aks051020042@ibl</div>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase">Tap ID to copy</p>
+                
+                <button id="pay-now" class="w-full mt-4 bg-[#FFD60A] text-gray-800 font-black py-4 rounded-xl shadow-lg active:scale-95 transition-all">
+                    SEND GIFT NOW 💸
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="msg-box" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-full shadow-xl text-[#FF4D6D] font-bold opacity-0 transition-opacity pointer-events-none z-50 whitespace-nowrap">
+        No is not an option! 😉
+    </div>
+
+    <script>
+        const valentineWeek = [
+            { title: "A rose for you", emoji: "🌹", desc: "Something beautiful for someone beautiful!" },
+            { title: "A ring for you", emoji: "💍", desc: "Because you're my favorite person to tease!" },
+            { title: "A chocolate for you", emoji: "🍫", desc: "Something sweet for someone sweet!" },
+            { title: "A teddy for you", emoji: "🧸", desc: "A soft hug from me to you!" },
+            { title: "A promise for you", emoji: "🤙", desc: "A promise to never stop annoying you!" },
+            { title: "A hug for you", emoji: "🫂", desc: "Warmth for your cold heart (just kidding!)" },
+            { title: "A kiss for you", emoji: "💋", desc: "Sending lots of love your way!" },
+            { title: "A heart for you", emoji: "💝", desc: "Finally, the best for the best!" }
+        ];
+
+        let currentStep = 0;
+        let messageCollected = false;
+        const upiIdStr = "aks051020042@ibl";
+        const BIRTHDAY_PASS = "0510";
+
+        function setupNoButton(btn, group, card, avoidBtn) {
+            const move = (e) => {
+                if (window.matchMedia("(pointer: fine)").matches) {
+                    const cardRect = card.getBoundingClientRect();
+                    const btnRect = btn.getBoundingClientRect();
+                    const avoidRect = avoidBtn.getBoundingClientRect();
+                    const mouseX = e.clientX;
+                    const mouseY = e.clientY;
+                    let newLeft, newTop, attempts = 0;
+                    const pad = 20;
+                    do {
+                        newLeft = Math.random() * (cardRect.width - btnRect.width - pad * 2) + pad;
+                        newTop = Math.random() * (cardRect.height - btnRect.height - pad * 2) + pad;
+                        attempts++;
+                        if (attempts > 50) break;
+                    } while (
+                        (cardRect.left + newLeft < avoidRect.right + 20 &&
+                        cardRect.left + newLeft + btnRect.width > avoidRect.left - 20 &&
+                        cardRect.top + newTop < avoidRect.bottom + 20 &&
+                        cardRect.top + newTop + btnRect.height > avoidRect.top - 20) ||
+                        (mouseX > cardRect.left + newLeft - 20 && mouseX < cardRect.left + newLeft + btnRect.width + 20 &&
+                         mouseY > cardRect.top + newTop - 20 && mouseY < cardRect.top + newTop + btnRect.height + 20)
+                    );
+                    btn.style.position = 'absolute';
+                    btn.style.left = newLeft + 'px';
+                    btn.style.top = newTop + 'px';
+                    btn.style.margin = '0';
+                    btn.style.zIndex = '50';
+                    showMsg("Nice try! 😂");
+                }
+            };
+            const swap = (e) => {
+                e.preventDefault();
+                group.style.flexDirection = group.style.flexDirection === 'column-reverse' ? 'row' : 'column-reverse';
+                showMsg("Popat! Click the big button! 😜");
+            };
+            btn.addEventListener('mouseover', move);
+            btn.addEventListener('touchstart', swap);
+            btn.addEventListener('click', (e) => { if (window.matchMedia("(pointer: fine)").matches) move(e); else swap(e); });
+        }
+
+        function showMsg(text) {
+            const msgBox = document.getElementById('msg-box');
+            msgBox.innerText = text;
+            msgBox.style.opacity = '1';
+            setTimeout(() => msgBox.style.opacity = '0', 2000);
+        }
+
+        setupNoButton(document.getElementById('v-no'), document.getElementById('group-1'), document.getElementById('valentine-card'), document.getElementById('v-yes'));
+
+        document.getElementById('v-yes').addEventListener('click', () => {
+            document.getElementById('valentine-card').classList.add('hidden');
+            const gc = document.getElementById('gift-container');
+            gc.classList.remove('hidden');
+            setTimeout(() => { gc.style.opacity = '1'; gc.style.transform = 'scale(1)'; }, 50);
+        });
+
+        const unwrapBtn = document.getElementById('unwrap-btn');
+        const collectBtn = document.getElementById('collect-btn');
+        const unwrapAction = document.getElementById('unwrap-action');
+        const collectGroup = document.getElementById('collect-group');
+        const visual = document.getElementById('gift-visual');
+        const title = document.getElementById('gift-title');
+        const desc = document.getElementById('gift-desc');
+
+        unwrapBtn.addEventListener('click', function() {
+            const item = valentineWeek[currentStep];
+            visual.innerText = item.emoji;
+            visual.classList.remove('gift-box-anim');
+            title.innerText = item.title;
+            desc.innerText = item.desc;
+            unwrapAction.classList.add('hidden');
+            collectGroup.classList.remove('hidden');
+        });
+
+        collectBtn.addEventListener('click', function() {
+            const emoji = visual.innerText;
+            const rect = visual.getBoundingClientRect();
+            
+            moveEmojiToCorner(emoji, rect, () => {
+                currentStep++;
+                if (currentStep < valentineWeek.length) {
+                    visual.innerText = "🎁";
+                    visual.classList.add('gift-box-anim');
+                    visual.style.opacity = '1';
+                    title.innerText = "Another Gift!";
+                    desc.innerText = "Tap to see the next one...";
+                    collectGroup.classList.add('hidden');
+                    unwrapAction.classList.remove('hidden');
+                } else {
+                    document.getElementById('gift-container').classList.add('hidden');
+                    const pc = document.getElementById('password-card');
+                    pc.classList.remove('hidden');
+                    setTimeout(() => { pc.style.opacity = '1'; pc.style.transform = 'scale(1)'; }, 50);
+                }
+            });
+        });
+
+        // Password Unlock
+        document.getElementById('unlock-btn').addEventListener('click', () => {
+            const val = document.getElementById('pass-input').value;
+            if (val === BIRTHDAY_PASS) {
+                document.getElementById('password-card').classList.add('hidden');
+                const mc = document.getElementById('message-display-card');
+                mc.classList.remove('hidden');
+                setTimeout(() => { mc.style.opacity = '1'; mc.style.transform = 'scale(1)'; }, 50);
+            } else {
+                showMsg("Galat Password! Abhishek se pucho 😜");
+            }
+        });
+
+        // Collect Secret Message
+        document.getElementById('collect-msg-btn').addEventListener('click', () => {
+            if (!messageCollected) {
+                const emoji = "✉️";
+                const source = document.getElementById('msg-emoji-source');
+                const rect = source.getBoundingClientRect();
+                
+                moveEmojiToCorner(emoji, rect, () => {
+                    document.getElementById('message-display-card').classList.add('hidden');
+                    messageCollected = true;
+                    showBill();
+                }, source, true); // true indicates this is the message floater
+            } else {
+                // If already collected, clicking the button just closes the view
+                document.getElementById('message-display-card').classList.add('hidden');
+                showBill();
+            }
+        });
+
+        document.getElementById('skip-pass-btn').addEventListener('click', () => {
+            document.getElementById('password-card').classList.add('hidden');
+            showBill();
+        });
+
+        function showBill() {
+            const bc = document.getElementById('bill-card');
+            bc.classList.remove('hidden');
+            setTimeout(() => { bc.style.opacity = '1'; bc.style.transform = 'scale(1)'; }, 50);
+        }
+
+        /**
+         * Smoothly moves an emoji from its source position to the corner.
+         */
+        function moveEmojiToCorner(emoji, startRect, callback, sourceEl = visual, isMessage = false) {
+            sourceEl.style.opacity = '0';
+
+            const el = document.createElement('div');
+            el.className = 'flying-item';
+            el.innerText = emoji;
+            
+            el.style.left = startRect.left + 'px';
+            el.style.top = startRect.top + 'px';
+            el.style.width = startRect.width + 'px';
+            el.style.height = startRect.height + 'px';
+            el.style.fontSize = window.getComputedStyle(sourceEl).fontSize;
+            
+            document.body.appendChild(el);
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const margin = 20;
+                    const targetX = window.innerWidth - 120 - (Math.random() * 80);
+                    const targetY = 30 + (Math.random() * 120);
+                    
+                    el.style.left = Math.max(margin, Math.min(window.innerWidth - 100, targetX)) + 'px';
+                    el.style.top = Math.max(margin, Math.min(window.innerHeight - 100, targetY)) + 'px';
+                    el.style.transform = `rotate(${Math.random() * 30 - 15}deg) scale(0.75)`;
+                    el.style.fontSize = '4.5rem'; 
+                });
+            });
+
+            setTimeout(() => {
+                el.classList.remove('flying-item');
+                el.classList.add('floater');
+                el.style.width = 'auto';
+                el.style.height = 'auto';
+                
+                // Add special behavior to the message chitthi
+                if (isMessage) {
+                    el.style.cursor = 'pointer';
+                    el.title = "Click to read message";
+                    el.addEventListener('click', (e) => {
+                        // Don't open if they were just finished dragging (slight threshold)
+                        if (el.dataset.dragging === 'true') return;
+                        openChitthi();
+                    });
+                }
+
+                makeDraggable(el);
+                if (callback) callback();
+            }, 950);
+        }
+
+        function openChitthi() {
+            // Hide everything else and show the message card
+            document.getElementById('bill-card').classList.add('hidden');
+            document.getElementById('valentine-card').classList.add('hidden');
+            document.getElementById('gift-container').classList.add('hidden');
+            document.getElementById('password-card').classList.add('hidden');
+            
+            const mc = document.getElementById('message-display-card');
+            mc.classList.remove('hidden');
+            setTimeout(() => { mc.style.opacity = '1'; mc.style.transform = 'scale(1)'; }, 50);
+            
+            // Update button text for re-read mode
+            document.getElementById('collect-msg-btn').innerText = "Continue ❤️";
+        }
+
+        function makeDraggable(el) {
+            let mouseX = 0, mouseY = 0;
+            let startX = 0, startY = 0;
+            let moved = false;
+
+            function onDown(e) {
+                e.preventDefault();
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                mouseX = clientX;
+                mouseY = clientY;
+                startX = clientX;
+                startY = clientY;
+                moved = false;
+                el.dataset.dragging = 'false';
+                
+                el.style.zIndex = "1000";
+                
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+                document.addEventListener('touchmove', onMove, {passive: false});
+                document.addEventListener('touchend', onUp);
+            }
+
+            function onMove(e) {
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                
+                if (Math.abs(clientX - startX) > 5 || Math.abs(clientY - startY) > 5) {
+                    moved = true;
+                    el.dataset.dragging = 'true';
+                }
+
+                let deltaX = mouseX - clientX;
+                let deltaY = mouseY - clientY;
+                mouseX = clientX;
+                mouseY = clientY;
+
+                let nextTop = el.offsetTop - deltaY;
+                let nextLeft = el.offsetLeft - deltaX;
+
+                const maxX = window.innerWidth - el.offsetWidth;
+                const maxY = window.innerHeight - el.offsetHeight;
+                el.style.top = Math.max(0, Math.min(nextTop, maxY)) + "px";
+                el.style.left = Math.max(0, Math.min(nextLeft, maxX)) + "px";
+            }
+
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onUp);
+                // Clear dragging status after a tiny delay to prevent immediate click trigger
+                setTimeout(() => { if (!moved) el.dataset.dragging = 'false'; }, 50);
+            }
+
+            el.addEventListener('mousedown', onDown);
+            el.addEventListener('touchstart', onDown);
+        }
+
+        document.getElementById('upi-id').addEventListener('click', () => {
+            const textArea = document.createElement("textarea");
+            textArea.value = upiIdStr;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showMsg("UPI ID Copied! ✅");
+        });
+
+        document.getElementById('pay-now').addEventListener('click', () => {
+            window.location.href = `upi://pay?pa=${upiIdStr}&pn=Kamini&cu=INR`;
+            showMsg("Opening Payment Apps... 💸");
+        });
+
+        function createHeart() {
+            const container = document.getElementById('heart-container');
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.className = 'heart-bg';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = Math.random() * 100 + 'vh';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            heart.style.animationDelay = (Math.random() * 5) + 's';
+            container.appendChild(heart);
+        }
+        for(let i=0; i<15; i++) createHeart();
+    </script>
+</body>
+</html>
